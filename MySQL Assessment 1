@@ -1,0 +1,86 @@
+Create table users (user_id int primary key auto_increment,user_name varchar(50) not null, user_dob date ,user_role int ,user_created_on datetime);
+
+create table sections( id int primary key auto_increment, name varchar(50))
+
+
+create table class
+	(
+	id int primary key auto_increment,
+	name varchar(50),
+	teacher_id int,
+	foreign key (teacher_id) references users(user_id), 
+	section_id int 
+	);
+
+create table enroll 
+(
+id int primary key auto_increment,
+ student_id int, class_id int,
+ foreign key (student_id) references users(user_id),
+ foreign key (class_id) references class(id)
+ );
+
+insert into users(user_name, user_dob, user_role, user_created_on) values ('Abhishek', '1999-06-18', 1, current_date())
+
+insert into sections(name) values ("C")
+
+insert into enroll(student_id, class_id) values(5, 2);
+
+
+Task 1. Display all students details with  class name, section name,teacher name and sort by user creation date descending, name alphabetcally 
+Ans : 
+
+
+SELECT 
+users.user_id, 
+users.user_name, 
+users.user_dob, 
+users.user_created_on, 
+class.name AS class_name, 
+sections.name AS section_name, 
+t.user_name AS teacher_name
+FROM users
+JOIN enroll ON users.user_id = enroll.student_id  
+JOIN class ON enroll.class_id = class.id  
+JOIN users t ON class.teacher_id = t.user_id  
+JOIN sections ON class.section_id = sections.id  
+WHERE users.user_role = 1  
+ORDER BY users.user_created_on DESC, users.user_name ASC;
+
+
+Task 2. Display all teachers with class_name of sections A and B
+
+Ans : select distinct users.user_name, class.name from users inner join class 
+on user_role = 2 inner join sections on sections.id = 1 or sections.id = 2;
+
+Task 3. Display all students of class I which having sections B or C
+Ans : select distinct users.user_name, class.name from users inner join class
+on class.name = "Class I" inner join sections s on s.id = 2 or s.id = 3 where user_role = 1;
+
+Task 4. Update 1st,3rd and 4th students dob 2000-10-01, 2001-09-11, 2002-08-11 respectively
+Ans : update users set user_dob = "2000-10-01" where user_id = 4;
+select * from users
+
+Task 5. display all students which having dob from 2000-09-01 to 2001-09-13 and name start with A
+Ans : select * from users where user_dob > "1999-01-01" and user_dob < "1999-10-01" and user_name like "A%";
+
+
+Task 6. display number of students belongs to class I and Class II 
+Ans : 
+select class.name, count(enroll.student_id) 
+from class join enroll on 
+class.id = enroll.class_id where class.name in ("ClassI", "ClassII") group by class.name;
+
+
+
+Task 7. update students of section C to class II
+
+Ans : update class set name = "ClassII" where section_id = 3;
+
+
+Task 8. Delete all users of section B
+
+Ans : alter table class drop foreign key fk_name;
+alter table class add constraint fk_sec foreign key(section_id) references sections(id) on delete cascade;
+delete from sections where id = 2;
+
