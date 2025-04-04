@@ -1,0 +1,129 @@
+create database employee_masters
+use employee_masters
+
+
+2. create table departments with dept_id,dept_name;
+
+Ans : create table departments (dept_id int primary key auto_increment, dept_name varchar(20));
+
+
+3. Create table employees with columns emp_id, emp_first_name, emp_last_name, emp_joining_date, emp_dept
+
+Ans : 
+Create table employees (emp_id int primary key auto_increment not null, 
+emp_first_name varchar(20),
+emp_last_name varchar(20),
+emp_joining_date date default (current_Date),
+emp_dep int,
+foreign key (emp_dep) references departments(dept_id) on delete cascade	);
+
+
+4. create table employee_position with column emp_user_id, pos_name, effective_from
+Ans : 
+create table employee_position
+(id int primary key not null auto_increment,
+emp_user_id int, 
+pos_name varchar(20),
+effective_from date default (Current_date),
+foreign key (emp_user_id) references Employees(emp_id) on delete cascade);
+
+6. add 2 users in Admin, 2 in HR, 4 in Sales
+Ans : 
+insert into employees
+(emp_first_name, emp_last_name, emp_joining_date, emp_dep) 
+values ('Sanket', 'Kachare', '2020-01-01', 1)
+
+
+7. Add 1st admin user position as Manager and effective date is 2 month before of todays date, 2nd admin user position is Associative and effective date is 1 month before of todays date
+Ans : 
+insert into employee_position
+(emp_user_id, pos_name, effective_from) 
+values
+(1, 'Manager', date_sub(curdate(), interval 2 month))
+
+insert into employee_position
+(emp_user_id, pos_name, effective_from) 
+values
+(2, 'Associative', date_sub(curdate(), interval 1 month))
+
+
+8. Add 1st HR user position as Executive and effective date is 1 month before of todays date, 2nd hr user position is Associative and effective date is 15 days before of todays date
+
+insert into employee_position
+(emp_user_id, pos_name, effective_from) 
+values
+(3, 'Executive ', date_sub(curdate(), interval 1 month))
+
+insert into employee_position
+(emp_user_id, pos_name, effective_from) 
+values
+(4, 'Associative  ', date_sub(curdate(), interval 15 day))
+
+
+
+9. Add 1st two Sales user position as Manager and effective date is 1 month before of todays date, remaning Sales user position is Trainee and effective date is 15 days before of todays date
+
+insert into employee_position
+(emp_user_id, pos_name, effective_from) 
+values
+(6, 'Manager', date_sub(curdate(), interval 1 month))
+
+insert into employee_position
+(emp_user_id, pos_name, effective_from) 
+values
+(8, 'Trainee', date_sub(curdate(), interval 15 day))
+
+
+10. Display all employee details with department, position details 
+
+
+Ans :
+
+SELECT 
+CONCAT(EMPLOYEES.EMP_FIRST_NAME, " ", EMPLOYEES.EMP_LAST_NAME) AS NAME,
+DEPARTMENTS.DEPT_NAME,
+EMPLOYEE_POSITION.POS_NAME FROM EMPLOYEES 
+JOIN DEPARTMENTS ON DEPARTMENTS.DEPT_ID = EMPLOYEES.EMP_DEP 
+JOIN EMPLOYEE_POSITION ON EMPLOYEES.EMP_ID = EMPLOYEE_POSITION.EMP_USER_ID
+
+
+11. Display all users first name and last name is uppercase letter who's position is Manager and effective date is 2022-04-01 to 2022-05-01 sort by joining date and department name 
+
+Ans : 
+
+SELECT UPPER(CONCAT(EMPLOYEES.EMP_FIRST_NAME, " ", EMPLOYEES.EMP_LAST_NAME)) AS NAME,
+EMPLOYEE_POSITION.POS_NAME AS POSITION
+FROM EMPLOYEES  
+LEFT JOIN EMPLOYEE_POSITION 
+ON EMPLOYEES.EMP_ID = EMPLOYEE_POSITION.EMP_USER_ID
+WHERE EMPLOYEE_POSITION.POS_NAME = "Manager" AND EMPLOYEES.EMP_JOINING_DATE < "2022-04-01"
+AND EMPLOYEE_POSITION.EFFECTIVE_FROM BETWEEN  "2022-04-01" AND "2022-05-01";
+
+
+12. Add new position Jr. HR and effective date is todays date to users whos department is HR and who's position is Exective
+
+create temporary table temp (
+select employees.emp_id as id from employees
+join employee_position on employees.emp_id = employee_position.emp_user_id
+join departments on departments.dept_id = employees.emp_dep 
+where departments.dept_id = 2 and employee_position.pos_name = "Executive");
+
+update employee_position set pos_name = "Jr.HR" where emp_user_id in (select id from temp);
+
+
+
+13. update one User department to Admin whos position is Trainee
+
+Ans :
+UPDATE employees
+JOIN employee_position ON employees.emp_id = employee_position.emp_user_id
+SET emp_dep = 3
+WHERE emp_id = (SELECT emp_user_id FROM employee_position WHERE pos_name = 'Trainee' LIMIT 1);	
+
+
+14. delete user whos first name start with A and last name end with E
+
+Ans : delete from employees where emp_first_name like "A%" and emp_last_name like "%E";
+
+
+
